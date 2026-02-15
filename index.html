@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Constellation ✨</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(to bottom, #0a0e27 0%, #1a1a3e 50%, #2d1b3d 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        .container {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b9d, #ffd93d, #6bcfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(255, 107, 157, 0.3);
+        }
+
+        @keyframes shimmer {
+
+            0%,
+            100% {
+                filter: brightness(1);
+            }
+
+            50% {
+                filter: brightness(1.3);
+            }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #ffd93d;
+            margin-bottom: 50px;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .constellation-canvas {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            height: 600px;
+            margin: 30px auto;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .constellation-line {
+            stroke: rgba(255, 215, 107, 0.4);
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: drawLine 2s ease-out forwards;
+        }
+
+        @keyframes drawLine {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .star {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .star-circle {
+            fill: #ffd93d;
+            filter: drop-shadow(0 0 8px rgba(255, 217, 61, 0.8));
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .star:hover .star-circle {
+            fill: #ff6b9d;
+            filter: drop-shadow(0 0 20px rgba(255, 107, 157, 1));
+            r: 14;
+        }
+
+        .star-tooltip {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+            background: rgba(26, 26, 62, 0.95);
+            border: 2px solid #ff6b9d;
+            border-radius: 10px;
+            padding: 10px 15px;
+            min-width: 160px;
+            text-align: center;
+            transform: translate(-50%, -100%);
+            margin-top: -20px;
+        }
+
+        .star-tooltip.visible {
+            opacity: 1;
+        }
+
+        .tooltip-date {
+            color: #ffd93d;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: 'Georgia', serif;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .tooltip-text {
+            color: #fff;
+            font-size: 13px;
+            font-family: 'Georgia', serif;
+            display: block;
+        }
+
+        .music-control {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(26, 26, 62, 0.9);
+            border: 2px solid #ff6b9d;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+            }
+
+            50% {
+                box-shadow: 0 0 30px rgba(255, 107, 157, 0.8);
+            }
+        }
+
+        .music-control:hover {
+            background: rgba(255, 107, 157, 0.2);
+            transform: scale(1.1);
+            animation: none;
+        }
+
+        .music-control svg {
+            width: 30px;
+            height: 30px;
+            fill: #ffd93d;
+        }
+
+        #backgroundMusic {
+            display: none;
+        }
+
+        .heart-image {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .heart-image.visible {
+            opacity: 1;
+        }
+
+        .background-stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite, float 20s infinite ease-in-out;
+            box-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.2;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(10px, -15px) rotate(5deg);
+            }
+            50% {
+                transform: translate(-5px, -25px) rotate(-5deg);
+            }
+            75% {
+                transform: translate(-15px, -10px) rotate(3deg);
+            }
+        }
+
+        .message {
+            max-width: 600px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .message p {
+            margin-bottom: 15px;
+        }
+
+        .heart {
+            color: #ff6b9d;
+            font-size: 1.5rem;
+            display: inline-block;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            25% {
+                transform: scale(1.2);
+            }
+
+            50% {
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .constellation-canvas {
+                height: 500px;
+            }
+
+            .message {
+                font-size: 1rem;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-stars" id="bgStars"></div>
+
+    <!-- Music Control Button -->
+    <div class="music-control" id="musicControl" title="Toggle Music">
+        <svg id="playIcon" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+        </svg>
+        <svg id="pauseIcon" viewBox="0 0 24 24" style="display: none;">
+            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+        </svg>
+    </div>
+
+    <!-- Background Music -->
+    <audio id="backgroundMusic" loop autoplay>
+        <source src="Letters_From_The_Sky_128k.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="container">
+        <h1>Our Letters From The Sky</h1>
+        <p class="subtitle">Every star tells our story</p>
+
+        <div class="constellation-canvas" id="constellationCanvas">
+            <svg id="constellation" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                    <!-- Heart-shaped clip path -->
+                    <clipPath id="heartClip">
+                        <path
+                            d="M 250,80 L 180,100 L 140,150 L 130,210 L 150,280 L 200,360 L 280,440 L 370,500 L 450,540 L 530,500 L 620,440 L 700,360 L 750,280 L 770,210 L 760,150 L 720,100 L 650,80 L 580,105 L 510,130 L 450,180 L 390,130 L 320,100 L 250,80 Z" />
+                    </clipPath>
+                </defs>
+                <!-- Heart image (hidden by default) -->
+                <image id="heartImage" class="heart-image" x="130" y="80" width="740" height="460"
+                    href="first-date-accident-1.jpg"
+                    clip-path="url(#heartClip)" preserveAspectRatio="xMidYMid slice" />
+                <!-- Lines will be drawn first so they appear behind stars -->
+                <g id="lines"></g>
+                <!-- Star circles -->
+                <g id="circles"></g>
+            </svg>
+            <!-- HTML Tooltips container -->
+            <div id="tooltipsContainer"></div>
+        </div>
+
+        <div class="message">
+            <p>From your young bo, with all my love</p>
+        </div>
+    </div>
+
+    <script>
+        // Audio control
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        const musicControl = document.getElementById('musicControl');
+        const playIcon = document.getElementById('playIcon');
+        const pauseIcon = document.getElementById('pauseIcon');
+        let isPlaying = true;
+
+        backgroundMusic.volume = 1.0;
+
+        // Set initial UI to show pause icon since autoplay is enabled
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'block';
+
+        // Define your special moments - customize these!
+        // Coordinates form a heart shape ❤️
+        const moments = [
+            // Left lobe
+            { x: 250, y: 80, date: "First Glance", detail: "When our eyes first met", delay: 0 },
+            { x: 180, y: 100, date: "Totally Not Crazy", detail: "Basement goofiness", delay: 0.2 },
+            { x: 140, y: 150, date: "So Pra", detail: "My Canadian Girl <3", delay: 0.4 },
+            { x: 130, y: 210, date: "Our First Halloween", detail: "When we were super cool", delay: 0.6 },
+            // Left side going down
+            { x: 150, y: 280, date: "Totally Sober", detail: "Just one more laugh from the billions", delay: 0.8 },
+            { x: 200, y: 360, date: "HIGH Park", detail: "Definitely not tripping", delay: 1.0 },
+            { x: 280, y: 440, date: "Honeymoon", detail: "Filled with love", delay: 1.2 },
+            { x: 370, y: 500, date: "Me Being Romantic", detail: "Waterfall craziness", delay: 1.4 },
+            // Bottom point
+            { x: 450, y: 540, date: "Forever Together", detail: "My heart is yours", delay: 1.6 },
+            // Right side going up
+            { x: 530, y: 500, date: "Your Beauty", detail: "More stunning than all of Greece", delay: 1.8 },
+            { x: 620, y: 440, date: "Wedding Love", detail: "Bringing out a little craziness again", delay: 2.0 },
+            { x: 700, y: 360, date: "You Talkin' To Me??", detail: "Being goofy at Queen's Park was so fun", delay: 2.2 },
+            { x: 750, y: 280, date: "Mental Asylum Here We Come", detail: "Spreading the craziness with you", delay: 2.4 },
+            // Right lobe
+            { x: 770, y: 210, date: "Riverdale Love", detail: "Just you and the city", delay: 2.6 },
+            { x: 760, y: 150, date: "Found My Groove", detail: "Next to you", delay: 2.8 },
+            { x: 720, y: 100, date: "Your Kiss", detail: "All I need", delay: 3.0 },
+            { x: 650, y: 80, date: "Our Trips", detail: "Making memories", delay: 3.2 },
+            // Center dip smooth curve
+            { x: 580, y: 105, date: "TO Adventures", detail: "Starting each day with you", delay: 3.4 },
+            { x: 510, y: 130, date: "Inside Jokes", detail: "We not crazy! You crazy.", delay: 3.6 },
+            { x: 450, y: 180, date: "Our Love", detail: "My Whole Universe", delay: 3.8 },
+            { x: 390, y: 130, date: "First Xmas", detail: "Embracing our first winter together", delay: 4.0 },
+            { x: 320, y: 100, date: "Embracing the Bald", detail: "Making me feel loved just how I am", delay: 4.2 },
+            // Back to start (completes the heart)
+            { x: 250, y: 80, date: "Where It All Started", detail: "Not even death can separate us", delay: 4.4 }
+        ];
+
+        // Create background stars
+        const bgStarsContainer = document.getElementById('bgStars');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'bg-star';
+            
+            // Random position
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            
+            // Random size (1-4px)
+            const size = Math.random() * 3 + 1;
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+            
+            // Random animation timing
+            star.style.animationDelay = `${Math.random() * 3}s, ${Math.random() * 20}s`;
+            star.style.animationDuration = `${Math.random() * 2 + 2}s, ${Math.random() * 10 + 15}s`;
+            
+            bgStarsContainer.appendChild(star);
+        }
+
+        // Draw constellation
+        const svgNS = "http://www.w3.org/2000/svg";
+        const circlesGroup = document.getElementById('circles');
+        const tooltipsContainer = document.getElementById('tooltipsContainer');
+        const linesGroup = document.getElementById('lines');
+        const heartImage = document.getElementById('heartImage');
+        const constellationCanvas = document.getElementById('constellationCanvas');
+        const svg = document.getElementById('constellation');
+
+        // Image URLs for each moment (customize these!)
+        const momentImages = [
+            { src: 'anything-for-you.jpg', x: 130, y: 80, width: 640, height: 560 },
+            { src: 'basement-1.jpg', x: 130, y: 80, width: 740, height: 460 },
+            { src: 'clarisse-oath.jpg', x: 130, y: 80, width: 640, height: 600 },
+            { src: 'halloween.jpg', x: 130, y: 80, width: 640, height: 640 },
+            { src: 'high-af.jpg', x: 130, y: 80, width: 640, height: 680 },
+            { src: 'high-park.jpg', x: 130, y: 80, width: 640, height: 900 },
+            { src: 'honeymoon-1.jpg', x: 30, y: 80, width: 740, height: 460 },
+            { src: 'honeymoon-2.jpg', x: 130, y: 80, width: 740, height: 460 },
+            { src: 'marriage.jpg', x: 130, y: 80, width: 740, height: 460 },
+            { src: 'nellie-wedding-1.jpg', x: 130, y: 80, width: 740, height: 800 },
+            { src: 'nellie-wedding-2.JPG', x: 130, y: 80, width: 640, height: 700 },
+            { src: 'queen-park-2.jpg', x: 130, y: 80, width: 640, height: 800 },
+            { src: 'queens-park-1.jpg', x: 130, y: 80, width: 640, height: 460 },
+            { src: 'riverdale-park.jpg', x: 130, y: 80, width: 740, height: 800 },
+            { src: 'rodos-1.JPG', x: 130, y: 80, width: 740, height: 460 },
+            { src: 'rodos-3.jpg', x: 130, y: 80, width: 740, height: 460 },
+            { src: 'tzia.JPG', x: 130, y: 80, width: 740, height: 460 },
+            { src: 'to-adventures.jpg', x: 130, y: 80, width: 740, height: 460 },
+            { src: 'we-are-not-crazy.jpg', x: 130, y: 80, width: 740, height: 460 },
+            { src: 'rodos-2.JPG', x: 130, y: 80, width: 640, height: 460 },
+            { src: 'xmas.png', x: 130, y: 80, width: 640, height: 460 },
+            { src: 'heisnberg.jpeg', x: 130, y: 80, width: 740, height: 460 },
+            { src: 'first-date-accident-1.jpg', x: 130, y: 80, width: 640, height: 600 },
+        ];
+
+        // Draw lines connecting stars
+        for (let i = 0; i < moments.length - 1; i++) {
+            const line = document.createElementNS(svgNS, 'line');
+            line.setAttribute('x1', moments[i].x);
+            line.setAttribute('y1', moments[i].y);
+            line.setAttribute('x2', moments[i + 1].x);
+            line.setAttribute('y2', moments[i + 1].y);
+            line.setAttribute('class', 'constellation-line');
+            line.style.animationDelay = (i * 0.3) + 's';
+            linesGroup.appendChild(line);
+        }
+
+        // Create stars
+        moments.forEach((moment, index) => {
+            // Star circle
+            const circleGroup = document.createElementNS(svgNS, 'g');
+            circleGroup.setAttribute('class', 'star');
+            circleGroup.setAttribute('data-index', index);
+            circleGroup.style.opacity = '0';
+            circleGroup.style.animation = `fadeIn 0.5s ease-out ${moment.delay}s forwards`;
+
+            const circle = document.createElementNS(svgNS, 'circle');
+            circle.setAttribute('cx', moment.x);
+            circle.setAttribute('cy', moment.y);
+            circle.setAttribute('r', '10');
+            circle.setAttribute('class', 'star-circle');
+            circleGroup.appendChild(circle);
+            circlesGroup.appendChild(circleGroup);
+
+            // Create HTML tooltip
+            const tooltip = document.createElement('div');
+            tooltip.className = 'star-tooltip';
+            tooltip.setAttribute('data-index', index);
+
+            const dateSpan = document.createElement('span');
+            dateSpan.className = 'tooltip-date';
+            dateSpan.textContent = moment.date;
+
+            const detailSpan = document.createElement('span');
+            detailSpan.className = 'tooltip-text';
+            detailSpan.textContent = moment.detail;
+
+            tooltip.appendChild(dateSpan);
+            tooltip.appendChild(detailSpan);
+            tooltipsContainer.appendChild(tooltip);
+
+            // Position tooltip
+            function positionTooltip() {
+                const svgRect = svg.getBoundingClientRect();
+                const svgWidth = svg.viewBox.baseVal.width;
+                const svgHeight = svg.viewBox.baseVal.height;
+
+                const scaleX = svgRect.width / svgWidth;
+                const scaleY = svgRect.height / svgHeight;
+
+                const xPos = moment.x * scaleX;
+                const yPos = moment.y * scaleY;
+
+                tooltip.style.left = xPos + 'px';
+                tooltip.style.top = yPos + 'px';
+            }
+
+            positionTooltip();
+            window.addEventListener('resize', positionTooltip);
+
+            // Show tooltip and heart image on hover
+            circleGroup.addEventListener('mouseenter', () => {
+                tooltip.classList.add('visible');
+                circle.setAttribute('fill', '#ff6b9d');
+                circle.setAttribute('filter', 'drop-shadow(0 0 20px rgba(255, 107, 157, 1))');
+                circle.setAttribute('r', '14');
+
+                // Show heart image with the corresponding moment's image
+                if (momentImages[index]) {
+                    const img = momentImages[index];
+                    heartImage.setAttribute('href', img.src);
+                    heartImage.setAttribute('x', img.x);
+                    heartImage.setAttribute('y', img.y);
+                    heartImage.setAttribute('width', img.width);
+                    heartImage.setAttribute('height', img.height);
+                }
+                heartImage.classList.add('visible');
+            });
+
+            circleGroup.addEventListener('mouseleave', () => {
+                tooltip.classList.remove('visible');
+                circle.setAttribute('fill', '#ffd93d');
+                circle.setAttribute('filter', 'drop-shadow(0 0 8px rgba(255, 217, 61, 0.8))');
+                circle.setAttribute('r', '10');
+
+                // Hide heart image
+                heartImage.classList.remove('visible');
+            });
+        });
+
+        // Add fade-in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: scale(0); }
+                to { opacity: 1; transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Music Player Control
+        musicControl.addEventListener('click', () => {
+            if (isPlaying) {
+                backgroundMusic.pause();
+                playIcon.style.display = 'block';
+                pauseIcon.style.display = 'none';
+                isPlaying = false;
+            } else {
+                backgroundMusic.play().catch(e => console.log('Playback failed:', e));
+                playIcon.style.display = 'none';
+                pauseIcon.style.display = 'block';
+                isPlaying = true;
+            }
+        });
+    </script>
+</body>
+
+</html>
