@@ -266,7 +266,7 @@
                 opacity: 0.15;
             }
             100% {
-                transform: translateY(calc(100vh + 150px)) rotate(360deg);
+                transform: translateY(calc(100vh - 80px)) rotate(360deg);
                 opacity: 0;
             }
         }
@@ -377,13 +377,30 @@
         const musicControl = document.getElementById('musicControl');
         const playIcon = document.getElementById('playIcon');
         const pauseIcon = document.getElementById('pauseIcon');
-        let isPlaying = true;
+        let isPlaying = false;
 
         backgroundMusic.volume = 1.0;
 
-        // Set initial UI to show pause icon since autoplay is enabled
-        playIcon.style.display = 'none';
-        pauseIcon.style.display = 'block';
+        // Default to play icon until playback is confirmed
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+
+        function setPlaybackState(playing) {
+            isPlaying = playing;
+            playIcon.style.display = playing ? 'none' : 'block';
+            pauseIcon.style.display = playing ? 'block' : 'none';
+        }
+
+        function tryAutoPlay() {
+            const playAttempt = backgroundMusic.play();
+            if (playAttempt && typeof playAttempt.then === 'function') {
+                playAttempt
+                    .then(() => setPlaybackState(true))
+                    .catch(() => setPlaybackState(false));
+            } else {
+                setPlaybackState(true);
+            }
+        }
 
         // Define your special moments - customize these!
         // Coordinates form a heart shape ❤️
@@ -638,16 +655,21 @@
         musicControl.addEventListener('click', () => {
             if (isPlaying) {
                 backgroundMusic.pause();
-                playIcon.style.display = 'block';
-                pauseIcon.style.display = 'none';
-                isPlaying = false;
+                setPlaybackState(false);
             } else {
-                backgroundMusic.play().catch(e => console.log('Playback failed:', e));
-                playIcon.style.display = 'none';
-                pauseIcon.style.display = 'block';
-                isPlaying = true;
+                backgroundMusic.play()
+                    .then(() => setPlaybackState(true))
+                    .catch(e => console.log('Playback failed:', e));
             }
         });
+
+        // Attempt autoplay, then retry on first user interaction if blocked
+        tryAutoPlay();
+        document.addEventListener('pointerdown', () => {
+            if (!isPlaying) {
+                tryAutoPlay();
+            }
+        }, { once: true });
     </script>
 </body>
 
