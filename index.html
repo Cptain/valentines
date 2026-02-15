@@ -244,6 +244,32 @@
             }
         }
 
+        .mail-icon {
+            position: absolute;
+            top: -100px;
+            width: 40px;
+            height: 40px;
+            opacity: 0.15;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            5% {
+                opacity: 0.15;
+            }
+            95% {
+                opacity: 0.15;
+            }
+            100% {
+                transform: translateY(calc(100vh + 150px)) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
         .message {
             max-width: 600px;
             text-align: center;
@@ -296,6 +322,7 @@
 
 <body>
     <div class="background-stars" id="bgStars"></div>
+    <div class="background-stars" id="mailIcons"></div>
 
     <!-- Music Control Button -->
     <div class="music-control" id="musicControl" title="Toggle Music">
@@ -414,8 +441,59 @@
             bgStarsContainer.appendChild(star);
         }
 
-        // Draw constellation
+        // Create falling mail icons
+        const mailIconsContainer = document.getElementById('mailIcons');
         const svgNS = "http://www.w3.org/2000/svg";
+        
+        for (let i = 0; i < 15; i++) {
+            const mailDiv = document.createElement('div');
+            mailDiv.className = 'mail-icon';
+            
+            // Random horizontal position
+            mailDiv.style.left = Math.random() * 100 + '%';
+            
+            // Random animation timing
+            const duration = Math.random() * 10 + 15; // 15-25 seconds
+            const delay = Math.random() * 20; // 0-20 seconds delay
+            mailDiv.style.animationDuration = duration + 's';
+            mailDiv.style.animationDelay = delay + 's';
+            
+            // Create SVG envelope
+            const svg = document.createElementNS(svgNS, 'svg');
+            svg.setAttribute('viewBox', '0 0 24 24');
+            svg.setAttribute('fill', 'none');
+            svg.setAttribute('stroke', '#ff6b9d');
+            svg.setAttribute('stroke-width', '1.5');
+            svg.style.width = '100%';
+            svg.style.height = '100%';
+            
+            // Envelope rectangle
+            const rect = document.createElementNS(svgNS, 'rect');
+            rect.setAttribute('x', '2');
+            rect.setAttribute('y', '5');
+            rect.setAttribute('width', '20');
+            rect.setAttribute('height', '14');
+            rect.setAttribute('rx', '2');
+            
+            // Envelope flap line 1
+            const line1 = document.createElementNS(svgNS, 'path');
+            line1.setAttribute('d', 'M 2 5 L 12 13 L 22 5');
+            
+            // Heart inside envelope
+            const heart = document.createElementNS(svgNS, 'path');
+            heart.setAttribute('d', 'M 12 15 C 12 15 7 12 7 9.5 C 7 8 8 7 9.5 7 C 10.5 7 11.5 7.5 12 8.5 C 12.5 7.5 13.5 7 14.5 7 C 16 7 17 8 17 9.5 C 17 12 12 15 12 15 Z');
+            heart.setAttribute('fill', '#ff6b9d');
+            heart.setAttribute('stroke', 'none');
+            
+            svg.appendChild(rect);
+            svg.appendChild(line1);
+            svg.appendChild(heart);
+            mailDiv.appendChild(svg);
+            
+            mailIconsContainer.appendChild(mailDiv);
+        }
+
+        // Draw constellation
         const circlesGroup = document.getElementById('circles');
         const tooltipsContainer = document.getElementById('tooltipsContainer');
         const linesGroup = document.getElementById('lines');
